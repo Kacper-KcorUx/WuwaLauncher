@@ -66,11 +66,20 @@ class LauncherRoot(BoxLayout):
         self.status_text = f"Plik gry: {p}" if ok else "Plik gry: nie ustawiono"
 
     def open_file_dialog(self):
-        from kivy.factory import Factory
-
         app = App.get_running_app()
+        # Najpierw spróbuj natywnego okna Windows (przez tkinter)
+        try:
+            if sys.platform == "win32" and hasattr(app, "open_native_dialog"):
+                path = app.open_native_dialog()
+                if path:
+                    app.on_file_chosen(path, None)
+                    return
+        except Exception:
+            pass
+
+        # Fallback: popup Kivy FileChooser
+        from kivy.factory import Factory
         popup = Factory.FileChooserPopup()
-        # Ustaw początkowy katalog
         if app.initial_dir:
             try:
                 popup.ids.chooser.path = app.initial_dir
@@ -180,6 +189,36 @@ class WuwaLauncherApp(App):
         root: LauncherRoot = self.root
         root.game_path = str(p)
         root.refresh_state()
+
+    def open_native_dialog(self) -> str:
+        """Otwórz natywne okno wyboru pliku w Windows przez tkinter.
+        Zwraca wybraną ścieżkę lub pusty string.
+        """
+        if sys.platform != "win32":
+            return ""
+        try:
+            import tkinter as tk
+            from tkinter import filedialog
+
+            root = tk.Tk()
+            root.withdraw()
+            try:
+                root.attributes('-topmost', True)
+            except Exception:
+                pass
+            path = filedialog.askopenfilename(
+                title="Wskaż plik wykonywalny gry",
+                initialdir=self.initial_dir or str(Path.home()),
+                filetypes=(("Pliki EXE", "*.exe"), ("Wszystkie pliki", "*.*")),
+            )
+            try:
+                root.destroy()
+            except Exception:
+                pass
+            return path or ""
+        except Exception as e:
+            info_popup("Błąd okna systemowego", f"Nie udało się otworzyć systemowego okna wyboru pliku.\n{e}")
+            return ""
 
 
 def main():
