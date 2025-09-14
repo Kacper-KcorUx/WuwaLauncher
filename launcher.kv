@@ -1,0 +1,42 @@
+<LauncherRoot>:
+    orientation: 'vertical'
+    padding: '16dp'
+    spacing: '12dp'
+    Button:
+        text: 'Graj'
+        font_size: '20sp'
+        size_hint_y: None
+        height: '56dp'
+        disabled: not root.can_play
+        on_release: root.play()
+    Label:
+        text: root.status_text
+        size_hint_y: None
+        height: self.texture_size[1] + dp(8)
+    Button:
+        text: 'Wybierz plik gry…'
+        size_hint_y: None
+        height: '40dp'
+        on_release: root.open_file_dialog()
+
+<FileChooserPopup@Popup>:
+    title: 'Wskaż plik wykonywalny gry'
+    size_hint: 0.9, 0.9
+    auto_dismiss: False
+    BoxLayout:
+        orientation: 'vertical'
+        FileChooserListView:
+            id: chooser
+            filters: ['*.exe', '*.*']
+        BoxLayout:
+            size_hint_y: None
+            height: '48dp'
+            spacing: '8dp'
+            padding: '8dp'
+            Button:
+                text: 'Anuluj'
+                on_release: root.dismiss()
+            Button:
+                text: 'Wybierz'
+                on_release: app.on_file_chosen(chooser.selection and chooser.selection[0] or '', root)
+
