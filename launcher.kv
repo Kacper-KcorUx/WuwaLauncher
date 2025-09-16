@@ -1,42 +1,204 @@
-<LauncherRoot>:
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+<Sidebar>:
     orientation: 'vertical'
-    padding: '16dp'
-    spacing: '12dp'
-    Button:
-        text: 'Graj'
-        font_size: '20sp'
-        size_hint_y: None
-        height: '56dp'
-        disabled: not root.can_play
-        on_release: root.play()
-    Label:
-        text: root.status_text
-        size_hint_y: None
-        height: self.texture_size[1] + dp(8)
-    Button:
-        text: 'Wybierz plik gry…'
-        size_hint_y: None
-        height: '40dp'
-        on_release: root.open_file_dialog()
+    size_hint: None, None
+    padding: [dp(8), dp(16), dp(8), dp(16)]
+    spacing: dp(8)
+    height: root.parent.height - dp(32) if root.parent else self.height
+    canvas.before:
+        Color:
+            rgba: 0.07, 0.07, 0.09, 0.72
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(12), dp(12), dp(12), dp(12)]
 
-<FileChooserPopup@Popup>:
-    title: 'Wskaż plik wykonywalny gry'
-    size_hint: 0.9, 0.9
-    auto_dismiss: False
+<SidebarItem@Button>:
+    sidebar: None
+    icon_text: ''
+    text_label: ''
+    screen_name: ''
+    size_hint_y: None
+    height: dp(48)
+    background_normal: ''
+    background_down: ''
+    background_color: 0, 0, 0, 0
+    color: 1, 1, 1, 1
+    canvas.before:
+        Color:
+            rgba: (0.25, 0.28, 0.35, 0.6) if root.sidebar and root.sidebar.active_screen == root.screen_name else (0, 0, 0, 0)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(8), dp(8), dp(8), dp(8)]
     BoxLayout:
+        orientation: 'horizontal'
+        spacing: dp(12)
+        padding: [dp(12), 0, dp(12), 0]
+        size_hint: 1, 1
+        Label:
+            text: root.icon_text
+            size_hint_x: None
+            width: dp(24)
+            halign: 'center'
+            valign: 'middle'
+            text_size: self.size
+        Label:
+            text: root.sidebar and root.sidebar.show_labels and root.text_label or ''
+            opacity: root.sidebar.labels_opacity if root.sidebar else 0
+            size_hint_x: None
+            width: root.sidebar.label_width if root.sidebar else 0
+            halign: 'left'
+            valign: 'middle'
+            text_size: self.size
+            shorten: True
+            shorten_from: 'right'
+
+<LauncherRoot>:
+    canvas.before:
+        Color:
+            rgba: 0.11, 0.11, 0.13, 0.6
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        id: content_container
         orientation: 'vertical'
-        FileChooserListView:
-            id: chooser
-            filters: ['*.exe', '*.*']
-        BoxLayout:
-            size_hint_y: None
-            height: '48dp'
-            spacing: '8dp'
-            padding: '8dp'
-            Button:
-                text: 'Anuluj'
-                on_release: root.dismiss()
-            Button:
-                text: 'Wybierz'
-                on_release: app.on_file_chosen(chooser.selection and chooser.selection[0] or '', root)
+        size_hint: 1, 1
+        padding: [root.content_padding_left, dp(16), dp(16), dp(16)]
+        spacing: dp(16)
+        canvas.before:
+            Color:
+                rgba: 0.15, 0.15, 0.18, 0.82
+            RoundedRectangle:
+                pos: self.pos
+                size: self.size
+                radius: [dp(16), dp(16), dp(16), dp(16)]
+        ScreenManager:
+            id: content_sm
+            transition: NoTransition()
+            Screen:
+                name: 'home'
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing: dp(16)
+                    padding: [0, 0, 0, dp(8)]
+                    Label:
+                        text: app.root.status_text if app.root else ''
+                        size_hint_y: None
+                        height: self.texture_size[1] + dp(12)
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.width, None
+                    Widget:
+                    BoxLayout:
+                        size_hint_y: None
+                        height: dp(96)
+                        padding: [0, dp(16), dp(16), dp(16)]
+                        spacing: dp(16)
+                        Widget:
+                        Button:
+                            text: 'Plik'
+                            size_hint: None, None
+                            size: dp(56), dp(56)
+                            on_release: app.root.open_file_dialog() if app.root else None
+                        Button:
+                            text: 'Graj'
+                            size_hint: None, None
+                            size: dp(72), dp(72)
+                            font_size: '20sp'
+                            disabled: not app.root.can_play if app.root else True
+                            on_release: app.root.play() if app.root else None
+            Screen:
+                name: 'library'
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: [0, dp(16), 0, dp(16)]
+                    spacing: dp(12)
+                    Label:
+                        text: 'Biblioteka w przygotowaniu'
+                        size_hint_y: None
+                        height: self.texture_size[1] + dp(12)
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.width, None
+                    Widget:
+            Screen:
+                name: 'store'
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: [0, dp(16), 0, dp(16)]
+                    spacing: dp(12)
+                    Label:
+                        text: 'Sklep w przygotowaniu'
+                        size_hint_y: None
+                        height: self.texture_size[1] + dp(12)
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.width, None
+                    Widget:
+            Screen:
+                name: 'settings'
+                BoxLayout:
+                    orientation: 'vertical'
+                    padding: [0, dp(16), 0, dp(16)]
+                    spacing: dp(12)
+                    Label:
+                        text: 'Ustawienia w przygotowaniu'
+                        size_hint_y: None
+                        height: self.texture_size[1] + dp(12)
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.width, None
+                    Widget:
+    Sidebar:
+        id: sidebar
+        pos: dp(16), dp(16)
+        size_hint: None, None
+        height: root.height - dp(32)
+        AnchorLayout:
+            anchor_x: 'left'
+            anchor_y: 'top'
+            size_hint: 1, 1
+            padding: 0
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint: 1, None
+                height: self.minimum_height
+                spacing: dp(8)
+                SidebarItem:
+                    sidebar: root.ids.sidebar
+                    icon_text: 'H'
+                    text_label: 'Strona glowna'
+                    screen_name: 'home'
+                    on_release: root.ids.sidebar.activate('home')
+                SidebarItem:
+                    sidebar: root.ids.sidebar
+                    icon_text: 'L'
+                    text_label: 'Biblioteka'
+                    screen_name: 'library'
+                    on_release: root.ids.sidebar.activate('library')
+                SidebarItem:
+                    sidebar: root.ids.sidebar
+                    icon_text: 'S'
+                    text_label: 'Sklep'
+                    screen_name: 'store'
+                    on_release: root.ids.sidebar.activate('store')
+                SidebarItem:
+                    sidebar: root.ids.sidebar
+                    icon_text: 'U'
+                    text_label: 'Ustawienia'
+                    screen_name: 'settings'
+                    on_release: root.ids.sidebar.activate('settings')
+                Widget:
+                    size_hint_y: 1
+
+
+
+
+
+
+
+
+
 
