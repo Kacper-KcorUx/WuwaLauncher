@@ -24,13 +24,16 @@ A desktop launcher for **Wuthering Waves** built with Python and Kivy. It provid
 
 ## Getting started
 
-bash
 # 1. Clone the repository
+
 git clone https://github.com/Kacper-KcorUx/WuwaLauncher.git
+
 cd WuwaLauncher
 
 # 2. Install dependencies
+
 pip install --upgrade pip
+
 pip install -r requirements.txt
 
 # 3. Run the launcher
