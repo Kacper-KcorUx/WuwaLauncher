@@ -43,7 +43,7 @@ The first launch creates default folders inside assets/ and initialises config.j
 
 The project ships as source, but you can create a standalone .exe using PyInstaller:
 
-`ash
+`bash
 pip install pyinstaller
 pyinstaller --noconfirm --onefile --windowed --name WutheringWavesLauncher \
   --add-data="assets;assets" --add-data="launcher.kv;." launcher.py
@@ -53,4 +53,4 @@ This command produces a dist/WutheringWavesLauncher.exe. The --add-data flags en
 
 ## License
 
-Released under the MIT License. Adapt as needed for your project.
+Released under the MIT License.
