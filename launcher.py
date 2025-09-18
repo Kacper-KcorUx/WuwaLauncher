@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Callable, Sequence
 
 import shutil
+from platformdirs import user_config_path, user_data_path
 
 try:
     from kivy.animation import Animation
@@ -38,11 +39,18 @@ except Exception as exc:  # pragma: no cover - import-time helper
 
 
 APP_TITLE = "Wuthering Waves Launcher"
-CONFIG_FILE = Path(__file__).with_name("config.json")
-KV_FILE = Path(__file__).with_name("launcher.kv")
-ASSETS_DIR = Path(__file__).with_name("assets")
+APP_ID = "WutheringWavesLauncher"
+BASE_PATH = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+KV_FILE = BASE_PATH / "launcher.kv"
+ASSETS_DIR = BASE_PATH / "assets"
 LANG_DIR = ASSETS_DIR / "lang"
-UI_ASSETS_DIR = ASSETS_DIR / "ui_assets"
+DEFAULT_ASSETS_UI_DIR = ASSETS_DIR / "ui_assets"
+CONFIG_DIR = Path(user_config_path(APP_ID, ensure_exists=True))
+CONFIG_FILE = CONFIG_DIR / "config.json"
+LEGACY_CONFIG_FILE = BASE_PATH / "config.json"
+USER_DATA_DIR = Path(user_data_path(APP_ID, ensure_exists=True))
+USER_ASSETS_DIR = USER_DATA_DIR / "assets"
+UI_ASSETS_DIR = USER_ASSETS_DIR / "ui_assets"
 BACKGROUND_BASENAME = "background"
 DEFAULT_LANG = "pl_PL"
 FALLBACK_LANG = "en_US"
@@ -250,16 +258,31 @@ KV_FALLBACK = """
 
 
 
-def load_config(path: Path = CONFIG_FILE) -> dict:
-    if not path.exists():
-        return {}
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
+def load_config(
+    path: Path = CONFIG_FILE,
+    fallback: Path | None = LEGACY_CONFIG_FILE,
+) -> tuple[dict, bool]:
+    primary_exists = path.exists()
+    candidates: list[tuple[Path, bool]] = [(path, False)]
+    if fallback and fallback != path:
+        candidates.append((fallback, True))
+    for candidate, needs_save in candidates:
+        if not candidate.exists():
+            continue
+        try:
+            data = json.loads(candidate.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        return data, needs_save
+    return {}, not primary_exists
 
 
 def save_config(cfg: dict, path: Path = CONFIG_FILE) -> None:
+    path = path.expanduser()
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
     path.write_text(json.dumps(cfg, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
@@ -552,12 +575,12 @@ class WuwaLauncherApp(App):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        ASSETS_DIR.mkdir(parents=True, exist_ok=True)
-        LANG_DIR.mkdir(parents=True, exist_ok=True)
+        CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        USER_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
         UI_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
-        self.cfg = load_config()
+        self.cfg, needs_save = load_config()
         legacy_path = self.cfg.pop("game_path", None)
-        converted = False
+        converted = legacy_path is not None
         if legacy_path and "game_dir" not in self.cfg:
             legacy = Path(legacy_path)
             game_dir = legacy.parent if legacy.suffix else legacy
@@ -573,11 +596,23 @@ class WuwaLauncherApp(App):
         self.language_display_map: dict[str, str] = {}
         self.language_display_lookup: dict[str, str] = {}
         self.set_language(self.current_language, persist=False)
-        self.cfg.setdefault("game_dir", "")
-        self.cfg.setdefault("background_image", "")
-        self.cfg.setdefault("window_size", [Window.size[0], Window.size[1]])
-        self.cfg.setdefault("window_position", [Window.left, Window.top])
-        if converted:
+        defaults_applied = False
+        if self.cfg.get("language") != self.current_language:
+            self.cfg["language"] = self.current_language
+            defaults_applied = True
+        if "game_dir" not in self.cfg:
+            self.cfg["game_dir"] = ""
+            defaults_applied = True
+        if "background_image" not in self.cfg:
+            self.cfg["background_image"] = ""
+            defaults_applied = True
+        if "window_size" not in self.cfg:
+            self.cfg["window_size"] = [Window.size[0], Window.size[1]]
+            defaults_applied = True
+        if "window_position" not in self.cfg:
+            self.cfg["window_position"] = [Window.left, Window.top]
+            defaults_applied = True
+        if converted or needs_save or defaults_applied:
             try:
                 save_config(self.cfg)
             except Exception:
@@ -771,11 +806,9 @@ class WuwaLauncherApp(App):
                 pass
         try:
             shutil.copy2(src, dest)
-            base_dir = Path(__file__).resolve().parent
-            rel = dest.relative_to(base_dir)
-            self.cfg["background_image"] = str(rel)
+            self.cfg["background_image"] = str(dest)
             self.initial_dir = str(src.parent)
-            save_config(self.cfg)
+            self._save_config_silent()
             if self.root:
                 self.root.update_background(dest)
         except Exception as exc:
@@ -807,15 +840,17 @@ class WuwaLauncherApp(App):
 
     def background_path(self) -> Path | None:
         configured = self.cfg.get("background_image")
-        base_dir = Path(__file__).resolve().parent
         if configured:
-            p = Path(configured)
-            if not p.is_absolute():
-                p = base_dir / p
-            if p.exists():
-                return p
-        matches = sorted(UI_ASSETS_DIR.glob(f"{BACKGROUND_BASENAME}.*"))
-        return matches[0] if matches else None
+            candidate = Path(configured).expanduser()
+            if not candidate.is_absolute():
+                candidate = UI_ASSETS_DIR / candidate
+            if candidate.exists():
+                return candidate
+        user_matches = sorted(UI_ASSETS_DIR.glob(f"{BACKGROUND_BASENAME}.*"))
+        if user_matches:
+            return user_matches[0]
+        default_matches = sorted(DEFAULT_ASSETS_UI_DIR.glob(f"{BACKGROUND_BASENAME}.*"))
+        return default_matches[0] if default_matches else None
 
 
 
