@@ -24,13 +24,16 @@ A desktop launcher for **Wuthering Waves** built with Python and Kivy. It provid
 
 ## Getting started
 
-bash
 # 1. Clone the repository
+
 git clone https://github.com/Kacper-KcorUx/WuwaLauncher.git
+
 cd WuwaLauncher
 
 # 2. Install dependencies
+
 pip install --upgrade pip
+
 pip install -r requirements.txt
 
 # 3. Run the launcher
@@ -43,7 +46,7 @@ The first launch creates default folders inside assets/ and initialises config.j
 
 The project ships as source, but you can create a standalone .exe using PyInstaller:
 
-`ash
+`bash
 pip install pyinstaller
 pyinstaller --noconfirm --onefile --windowed --name WutheringWavesLauncher \
   --add-data="assets;assets" --add-data="launcher.kv;." launcher.py
@@ -53,4 +56,4 @@ This command produces a dist/WutheringWavesLauncher.exe. The --add-data flags en
 
 ## License
 
-Released under the MIT License. Adapt as needed for your project.
+Released under the MIT License.
