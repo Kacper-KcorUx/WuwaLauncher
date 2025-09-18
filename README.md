@@ -24,6 +24,10 @@ A desktop launcher for **Wuthering Waves** built with Python and Kivy. It provid
 
 ## Getting started
 
+First way - Download Wuwalauncher.exe from dist
+
+Second way
+
 # 1. Clone the repository
 
 git clone https://github.com/Kacper-KcorUx/WuwaLauncher.git
