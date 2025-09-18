@@ -4,10 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5aa94113-2e43-489d-8a34-961c1697dcf7" name="Changes" comment="z">
+    <list default="true" id="5aa94113-2e43-489d-8a34-961c1697dcf7" name="Changes" comment="Version 0.0.2">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/launcher.kv" beforeDir="false" afterPath="$PROJECT_DIR$/launcher.kv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/launcher.py" beforeDir="false" afterPath="$PROJECT_DIR$/launcher.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,7 +84,10 @@
       <workItem from="1757878295708" duration="1021000" />
       <workItem from="1757879334432" duration="335000" />
       <workItem from="1757879679732" duration="346000" />
-      <workItem from="1758047317811" duration="6656000" />
+      <workItem from="1758047317811" duration="6845000" />
+      <workItem from="1758134387203" duration="4496000" />
+      <workItem from="1758140278174" duration="874000" />
+      <workItem from="1758218308641" duration="4360000" />
     </task>
     <task id="LOCAL-00001" summary="z">
       <option name="closed" value="true" />
@@ -106,7 +113,23 @@
       <option name="project" value="LOCAL" />
       <updated>1757879487182</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Version 0.0.2">
+      <option name="closed" value="true" />
+      <created>1758054631640</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1758054631640</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Version 0.0.2">
+      <option name="closed" value="true" />
+      <created>1758054651147</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1758054651147</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -135,9 +158,10 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="z" />
-    <option name="LAST_COMMIT_MESSAGE" value="z" />
+    <MESSAGE value="Version 0.0.2" />
+    <option name="LAST_COMMIT_MESSAGE" value="Version 0.0.2" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/launcher_py$launcher.coverage" NAME="launcher Coverage Results" MODIFIED="1758054590854" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/launcher_py$launcher.coverage" NAME="launcher Coverage Results" MODIFIED="1758221585860" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

@@ -1,3 +1,13 @@
 {
-  "game_path": "F:\\Wuthering Waves\\Wuthering Waves Game\\Wuthering Waves.exe"
+  "game_dir": "F:\\Wuthering Waves\\Wuthering Waves Game",
+  "background_image": "assets\\ui_assets\\background.jpg",
+  "language": "pl_PL",
+  "window_size": [
+    1248,
+    720
+  ],
+  "window_position": [
+    306,
+    157
+  ]
 }

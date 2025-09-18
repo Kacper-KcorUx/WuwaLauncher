@@ -1,29 +1,36 @@
 #:import NoTransition kivy.uix.screenmanager.NoTransition
 <Sidebar>:
+    menu_container: menu_box
     orientation: 'vertical'
     size_hint: None, None
     padding: [dp(8), dp(16), dp(8), dp(16)]
     spacing: dp(8)
     height: root.parent.height - dp(32) if root.parent else self.height
+    width: self.width
     canvas.before:
         Color:
-            rgba: 0.07, 0.07, 0.09, 0.72
+            rgba: 0, 0, 0, 0.45
         RoundedRectangle:
             pos: self.pos
             size: self.size
             radius: [dp(12), dp(12), dp(12), dp(12)]
+    AnchorLayout:
+        anchor_x: 'left'
+        anchor_y: 'top'
+        size_hint: 1, 1
+        BoxLayout:
+            id: menu_box
+            orientation: 'vertical'
+            size_hint: 1, None
+            height: self.minimum_height
+            spacing: dp(8)
 
-<SidebarItem@Button>:
-    sidebar: None
-    icon_text: ''
-    text_label: ''
-    screen_name: ''
+<SidebarButton>:
+    orientation: 'horizontal'
+    padding: [dp(12), 0, dp(12), 0]
+    spacing: dp(12)
     size_hint_y: None
     height: dp(48)
-    background_normal: ''
-    background_down: ''
-    background_color: 0, 0, 0, 0
-    color: 1, 1, 1, 1
     canvas.before:
         Color:
             rgba: (0.25, 0.28, 0.35, 0.6) if root.sidebar and root.sidebar.active_screen == root.screen_name else (0, 0, 0, 0)
@@ -31,36 +38,27 @@
             pos: self.pos
             size: self.size
             radius: [dp(8), dp(8), dp(8), dp(8)]
-    BoxLayout:
-        orientation: 'horizontal'
-        spacing: dp(12)
-        padding: [dp(12), 0, dp(12), 0]
-        size_hint: 1, 1
-        Label:
-            text: root.icon_text
-            size_hint_x: None
-            width: dp(24)
-            halign: 'center'
-            valign: 'middle'
-            text_size: self.size
-        Label:
-            text: root.sidebar and root.sidebar.show_labels and root.text_label or ''
-            opacity: root.sidebar.labels_opacity if root.sidebar else 0
-            size_hint_x: None
-            width: root.sidebar.label_width if root.sidebar else 0
-            halign: 'left'
-            valign: 'middle'
-            text_size: self.size
-            shorten: True
-            shorten_from: 'right'
+    Label:
+        text: root.icon_text
+        size_hint_x: None
+        width: dp(24)
+        halign: 'center'
+        valign: 'middle'
+        text_size: self.size
+    Label:
+        text: root.sidebar and root.sidebar.show_labels and root.text_label or ''
+        opacity: root.sidebar.labels_opacity if root.sidebar else 0
+        size_hint_x: None
+        width: root.sidebar.label_width if root.sidebar else 0
+        halign: 'left'
+        valign: 'middle'
+        text_size: self.size
+        shorten: True
+        shorten_from: 'right'
 
 <LauncherRoot>:
-    canvas.before:
-        Color:
-            rgba: 0.11, 0.11, 0.13, 0.6
-        Rectangle:
-            pos: self.pos
-            size: self.size
+    sidebar: sidebar
+    content_manager: content_sm
     BoxLayout:
         id: content_container
         orientation: 'vertical'
@@ -69,7 +67,7 @@
         spacing: dp(16)
         canvas.before:
             Color:
-                rgba: 0.15, 0.15, 0.18, 0.82
+                rgba: 0, 0, 0, 0
             RoundedRectangle:
                 pos: self.pos
                 size: self.size
@@ -84,6 +82,7 @@
                     spacing: dp(16)
                     padding: [0, 0, 0, dp(8)]
                     Label:
+                        id: status_label
                         text: app.root.status_text if app.root else ''
                         size_hint_y: None
                         height: self.texture_size[1] + dp(12)
@@ -98,22 +97,17 @@
                         spacing: dp(16)
                         Widget:
                         Button:
-                            text: 'Plik'
-                            size_hint: None, None
-                            size: dp(56), dp(56)
-                            on_release: app.root.open_file_dialog() if app.root else None
-                        Button:
-                            text: 'Graj'
+                            id: play_button
+                            text: app.translate('button.play') if app else 'Play'
                             size_hint: None, None
                             size: dp(72), dp(72)
                             font_size: '20sp'
-                            disabled: not app.root.can_play if app.root else True
                             on_release: app.root.play() if app.root else None
             Screen:
                 name: 'library'
                 BoxLayout:
                     orientation: 'vertical'
-                    padding: [0, dp(16), 0, dp(16)]
+                    padding: [0, dp(16), dp(16), dp(16)]
                     spacing: dp(12)
                     Label:
                         text: 'Biblioteka w przygotowaniu'
@@ -127,7 +121,7 @@
                 name: 'store'
                 BoxLayout:
                     orientation: 'vertical'
-                    padding: [0, dp(16), 0, dp(16)]
+                    padding: [0, dp(16), dp(16), dp(16)]
                     spacing: dp(12)
                     Label:
                         text: 'Sklep w przygotowaniu'
@@ -141,64 +135,57 @@
                 name: 'settings'
                 BoxLayout:
                     orientation: 'vertical'
-                    padding: [0, dp(16), 0, dp(16)]
+                    padding: [dp(16), dp(16), dp(16), dp(16)]
                     spacing: dp(12)
                     Label:
-                        text: 'Ustawienia w przygotowaniu'
+                        id: game_dir_label
+                        text: app.translate('settings.game_dir_label') if app else 'Game directory'
                         size_hint_y: None
                         height: self.texture_size[1] + dp(12)
                         halign: 'left'
                         valign: 'middle'
                         text_size: self.width, None
+                    BoxLayout:
+                        size_hint_y: None
+                        height: dp(48)
+                        spacing: dp(12)
+                        Label:
+                            id: game_dir_value
+                            text: app.root.game_dir if app and app.root and app.root.game_dir else (app.translate('status.not_set') if app else 'Game directory: not set')
+                            size_hint_x: 1
+                            halign: 'left'
+                            valign: 'middle'
+                            text_size: self.width, None
+                        Button:
+                            id: choose_button
+                            text: app.translate('settings.select_folder') if app else 'Select folder'
+                            size_hint: None, None
+                            size: dp(160), dp(44)
+                            on_release: app.root.open_file_dialog() if app.root else None
+                    Button:
+                        id: background_button
+                        text: app.translate('settings.change_background') if app else 'Change background'
+                        size_hint: None, None
+                        size: dp(200), dp(44)
+                        on_release: app.select_background() if app else None
+                    Label:
+                        id: language_label
+                        text: app.translate('settings.language_label') if app else 'Language'
+                        size_hint_y: None
+                        height: self.texture_size[1] + dp(12)
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.width, None
+                    Spinner:
+                        id: language_spinner
+                        size_hint: None, None
+                        size: dp(220), dp(44)
+                        values: []
+                        on_text: app.on_language_selected(self.text) if app else None
                     Widget:
     Sidebar:
         id: sidebar
         pos: dp(16), dp(16)
         size_hint: None, None
         height: root.height - dp(32)
-        AnchorLayout:
-            anchor_x: 'left'
-            anchor_y: 'top'
-            size_hint: 1, 1
-            padding: 0
-            BoxLayout:
-                orientation: 'vertical'
-                size_hint: 1, None
-                height: self.minimum_height
-                spacing: dp(8)
-                SidebarItem:
-                    sidebar: root.ids.sidebar
-                    icon_text: 'H'
-                    text_label: 'Strona glowna'
-                    screen_name: 'home'
-                    on_release: root.ids.sidebar.activate('home')
-                SidebarItem:
-                    sidebar: root.ids.sidebar
-                    icon_text: 'L'
-                    text_label: 'Biblioteka'
-                    screen_name: 'library'
-                    on_release: root.ids.sidebar.activate('library')
-                SidebarItem:
-                    sidebar: root.ids.sidebar
-                    icon_text: 'S'
-                    text_label: 'Sklep'
-                    screen_name: 'store'
-                    on_release: root.ids.sidebar.activate('store')
-                SidebarItem:
-                    sidebar: root.ids.sidebar
-                    icon_text: 'U'
-                    text_label: 'Ustawienia'
-                    screen_name: 'settings'
-                    on_release: root.ids.sidebar.activate('settings')
-                Widget:
-                    size_hint_y: 1
-
-
-
-
-
-
-
-
-
 
