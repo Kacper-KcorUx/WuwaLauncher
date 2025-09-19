@@ -40,15 +40,21 @@ except Exception as exc:  # pragma: no cover - import-time helper
 
 APP_TITLE = "Wuthering Waves Launcher"
 APP_ID = "WutheringWavesLauncher"
-BASE_PATH = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+IS_FROZEN = getattr(sys, "frozen", False)
+APP_ROOT = Path(sys.executable).resolve().parent if IS_FROZEN else Path(__file__).resolve().parent
+BASE_PATH = Path(getattr(sys, "_MEIPASS", APP_ROOT))
 KV_FILE = BASE_PATH / "launcher.kv"
 ASSETS_DIR = BASE_PATH / "assets"
 LANG_DIR = ASSETS_DIR / "lang"
 DEFAULT_ASSETS_UI_DIR = ASSETS_DIR / "ui_assets"
-CONFIG_DIR = Path(user_config_path(APP_ID, ensure_exists=True))
+CONFIG_DIR = APP_ROOT if IS_FROZEN else Path(user_config_path(APP_ID, ensure_exists=True))
 CONFIG_FILE = CONFIG_DIR / "config.json"
-LEGACY_CONFIG_FILE = BASE_PATH / "config.json"
-USER_DATA_DIR = Path(user_data_path(APP_ID, ensure_exists=True))
+LEGACY_CONFIG_FILE = (
+    Path(user_config_path(APP_ID, ensure_exists=False)) / "config.json"
+    if IS_FROZEN
+    else BASE_PATH / "config.json"
+)
+USER_DATA_DIR = (APP_ROOT / "user_data") if IS_FROZEN else Path(user_data_path(APP_ID, ensure_exists=True))
 USER_ASSETS_DIR = USER_DATA_DIR / "assets"
 UI_ASSETS_DIR = USER_ASSETS_DIR / "ui_assets"
 BACKGROUND_BASENAME = "background"

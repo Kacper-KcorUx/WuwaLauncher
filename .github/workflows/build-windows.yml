@@ -1,0 +1,54 @@
+﻿name: build-windows
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Windows package
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build launcher
+        run: |
+          pyinstaller --noconfirm --onedir --windowed --name WutheringWavesLauncher `
+            --add-data "assets;assets" `
+            --add-data "config.json;." `
+            --add-data "launcher.kv;." launcher.py
+
+      - name: Prepare artifact archive
+        run: |
+          if (Test-Path dist\WutheringWavesLauncher-win64.zip) { Remove-Item dist\WutheringWavesLauncher-win64.zip }
+          Compress-Archive -Path dist\WutheringWavesLauncher\* -DestinationPath dist\WutheringWavesLauncher-win64.zip
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WutheringWavesLauncher-win64
+          path: dist/WutheringWavesLauncher-win64.zip
+
+      - name: Attach asset to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/WutheringWavesLauncher-win64.zip
