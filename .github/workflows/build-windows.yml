@@ -30,6 +30,8 @@ jobs:
           pip install pyinstaller
 
       - name: Build launcher
+        env:
+          KIVY_GL_BACKEND: angle_sdl2
         run: |
           pyinstaller --noconfirm --onedir --windowed --name WutheringWavesLauncher `
             --add-data "assets;assets" `
