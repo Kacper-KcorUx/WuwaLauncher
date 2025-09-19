@@ -51,6 +51,7 @@ CONFIG_FILE = CONFIG_DIR / "config.json"
 CONFIG_FALLBACKS: tuple[Path, ...] = (BASE_PATH / "config.json",)
 USER_DATA_DIR = APP_ROOT / "user_data"
 USER_ASSETS_DIR = USER_DATA_DIR / "assets"
+USER_LANG_DIR = USER_ASSETS_DIR / "lang"
 UI_ASSETS_DIR = USER_ASSETS_DIR / "ui_assets"
 BACKGROUND_BASENAME = "background"
 DEFAULT_LANG = "pl_PL"
@@ -578,6 +579,7 @@ class WuwaLauncherApp(App):
         CONFIG_DIR.mkdir(parents=True, exist_ok=True)
         USER_DATA_DIR.mkdir(parents=True, exist_ok=True)
         USER_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
+        USER_LANG_DIR.mkdir(parents=True, exist_ok=True)
         UI_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
         self.cfg, needs_save = load_config()
         legacy_path = self.cfg.pop("game_path", None)
@@ -587,7 +589,9 @@ class WuwaLauncherApp(App):
             game_dir = legacy.parent if legacy.suffix else legacy
             self.cfg["game_dir"] = str(game_dir)
             converted = True
-        self.available_languages = ("pl_PL", "en_US")
+        self.available_languages = self._discover_languages()
+        if not self.available_languages:
+            self.available_languages = (FALLBACK_LANG,)
         lang = self.cfg.get("language", DEFAULT_LANG)
         if lang not in self.available_languages:
             lang = DEFAULT_LANG
@@ -656,14 +660,29 @@ class WuwaLauncherApp(App):
                 return
         self.initial_dir = str(Path.home())
 
+    def _discover_languages(self) -> tuple[str, ...]:
+        def collect(base: Path) -> set[str]:
+            if not base.exists():
+                return set()
+            codes: set[str] = set()
+            for entry in base.iterdir():
+                if entry.is_dir() and (entry / "messages.json").exists():
+                    codes.add(entry.name)
+            return codes
+
+        languages = collect(LANG_DIR) | collect(USER_LANG_DIR) | {DEFAULT_LANG, FALLBACK_LANG}
+        return tuple(sorted(languages))
+
     def _load_language_file(self, code: str) -> dict[str, str]:
-        file = LANG_DIR / code / "messages.json"
-        if not file.exists():
-            return {}
-        try:
-            return json.loads(file.read_text(encoding="utf-8"))
-        except Exception:
-            return {}
+        for base in (USER_LANG_DIR, LANG_DIR):
+            candidate = base / code / "messages.json"
+            if not candidate.exists():
+                continue
+            try:
+                return json.loads(candidate.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+        return {}
 
     def _refresh_language_maps(self):
         self.language_display_map = {}

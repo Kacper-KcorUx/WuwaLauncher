@@ -4,10 +4,10 @@ A desktop launcher for **Wuthering Waves** built with Python and Kivy. It provid
 
 ## Features
 
-- **Game directory selector** – points to the game installation folder and launches Wuthering Waves.exe from that directory.
-- **Multilingual UI** – supports pl_PL and en_US with JSON translation packs stored in assets/lang/. (You can contribue to new lang packs)
-- **Custom backgrounds** – pick any image; the launcher copies it into assets/ui_assets/background.* and renders it behind the UI.
-- **Persistent settings** – the launcher stores window size, window position, selected language, game folder, and background in config.json.
+- **Game directory selector** - points to the game installation folder and launches Wuthering Waves.exe from that directory.
+- **Multilingual UI** - supports pl_PL and en_US with JSON translation packs stored in `assets/lang/`, and you can drop custom packs into `user_data/assets/lang/` without touching the bundled files.
+- **Custom backgrounds** - pick any image; the launcher copies it into assets/ui_assets/background.* and renders it behind the UI.
+- **Persistent settings** - the launcher stores preferences in `config.json` and the `user_data/` folder created next to the `.exe`, so moving the folder keeps your settings.
 
 ## Project structure
 
@@ -43,15 +43,25 @@ The first launch creates default folders inside assets/ and initialises config.j
 
 ## Building a Windows executable
 
-The project ships as source, but you can create a standalone .exe using PyInstaller:
+The project ships as source, but you can create a standalone onedir build using PyInstaller:
 
-`bash
+```bash
 pip install pyinstaller
-pyinstaller --noconfirm --onefile --windowed --name WutheringWavesLauncher \
-  --add-data="assets;assets" --add-data="launcher.kv;." launcher.py
-`
+pyinstaller --noconfirm --onedir --windowed --name WutheringWavesLauncher ^
+  --add-data "assets;assets" ^
+  --add-data "config.json;." ^
+  --add-data "launcher.kv;." launcher.py
+```
 
-This command produces a dist/WutheringWavesLauncher.exe. The --add-data flags ensure the assets and KV layout are bundled next to the executable. Distribute the entire dist directory so the launcher can access its resources.
+This command produces the folder `dist/WutheringWavesLauncher/` with the executable and bundled resources. Distribute the entire directory (for example by zipping it) so the launcher keeps access to its data.
+
+## Installing the .exe
+
+1. Download the `WutheringWavesLauncher-win64.zip` archive from GitHub Releases or build it yourself using the steps above.
+2. Extract the `WutheringWavesLauncher` folder somewhere with write permissions (for example `D:\Games\WutheringWavesLauncher`).
+3. Launch `WutheringWavesLauncher.exe` directly or create a desktop shortcut that points to it.
+4. Settings and user data (`config.json`, `user_data/`) live in the same directory, so copying that folder migrates all preferences.
+   Drop community language packs into `user_data/assets/lang/<language_code>/messages.json` if you need additional translations.
 
 ## License
 
