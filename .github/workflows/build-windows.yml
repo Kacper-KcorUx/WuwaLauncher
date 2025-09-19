@@ -1,4 +1,4 @@
-﻿name: build-windows
+name: build-windows
 
 on:
   push:
@@ -34,7 +34,6 @@ jobs:
           KIVY_GL_BACKEND: angle_sdl2
         run: |
           pyinstaller --noconfirm --onedir --windowed --name WutheringWavesLauncher `
-            --hidden-import platformdirs `
             --add-data "assets;assets" `
             --add-data "config.json;." `
             --add-data "launcher.kv;." launcher.py

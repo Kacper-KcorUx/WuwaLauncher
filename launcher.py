@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Callable, Sequence
 
 import shutil
-from platformdirs import user_config_path, user_data_path
 
 try:
     from kivy.animation import Animation
@@ -47,14 +46,10 @@ KV_FILE = BASE_PATH / "launcher.kv"
 ASSETS_DIR = BASE_PATH / "assets"
 LANG_DIR = ASSETS_DIR / "lang"
 DEFAULT_ASSETS_UI_DIR = ASSETS_DIR / "ui_assets"
-CONFIG_DIR = APP_ROOT if IS_FROZEN else Path(user_config_path(APP_ID, ensure_exists=True))
+CONFIG_DIR = APP_ROOT
 CONFIG_FILE = CONFIG_DIR / "config.json"
-LEGACY_CONFIG_FILE = (
-    Path(user_config_path(APP_ID, ensure_exists=False)) / "config.json"
-    if IS_FROZEN
-    else BASE_PATH / "config.json"
-)
-USER_DATA_DIR = (APP_ROOT / "user_data") if IS_FROZEN else Path(user_data_path(APP_ID, ensure_exists=True))
+CONFIG_FALLBACKS: tuple[Path, ...] = (BASE_PATH / "config.json",)
+USER_DATA_DIR = APP_ROOT / "user_data"
 USER_ASSETS_DIR = USER_DATA_DIR / "assets"
 UI_ASSETS_DIR = USER_ASSETS_DIR / "ui_assets"
 BACKGROUND_BASENAME = "background"
@@ -266,12 +261,13 @@ KV_FALLBACK = """
 
 def load_config(
     path: Path = CONFIG_FILE,
-    fallback: Path | None = LEGACY_CONFIG_FILE,
+    fallbacks: Sequence[Path] = CONFIG_FALLBACKS,
 ) -> tuple[dict, bool]:
     primary_exists = path.exists()
     candidates: list[tuple[Path, bool]] = [(path, False)]
-    if fallback and fallback != path:
-        candidates.append((fallback, True))
+    for fallback in fallbacks:
+        if fallback and fallback != path:
+            candidates.append((fallback, True))
     for candidate, needs_save in candidates:
         if not candidate.exists():
             continue
@@ -281,8 +277,6 @@ def load_config(
             continue
         return data, needs_save
     return {}, not primary_exists
-
-
 def save_config(cfg: dict, path: Path = CONFIG_FILE) -> None:
     path = path.expanduser()
     try:
@@ -582,6 +576,7 @@ class WuwaLauncherApp(App):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        USER_DATA_DIR.mkdir(parents=True, exist_ok=True)
         USER_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
         UI_ASSETS_DIR.mkdir(parents=True, exist_ok=True)
         self.cfg, needs_save = load_config()
@@ -872,3 +867,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+

@@ -8,7 +8,6 @@ A desktop launcher for **Wuthering Waves** built with Python and Kivy. It provid
 - **Multilingual UI** – supports pl_PL and en_US with JSON translation packs stored in assets/lang/. (You can contribue to new lang packs)
 - **Custom backgrounds** – pick any image; the launcher copies it into assets/ui_assets/background.* and renders it behind the UI.
 - **Persistent settings** – the launcher stores window size, window position, selected language, game folder, and background in config.json.
-- **Animated sidebar** – expandable menu for navigating current (and future) screens.
 
 ## Project structure
 
