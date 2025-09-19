@@ -20,6 +20,14 @@ A desktop launcher for **Wuthering Waves** built with Python and Kivy. It provid
 ├─ config.json         # Saved user preferences
 └─ requirements.txt    # Python dependencies
 `
+## Installing the .exe
+
+1. Download the `WutheringWavesLauncher-win64.zip` archive from GitHub Releases or build it yourself using the steps below.
+2. Extract the `WutheringWavesLauncher` folder somewhere with write permissions (for example `D:\Games\WutheringWavesLauncher`).
+3. Launch `WutheringWavesLauncher.exe` directly or create a desktop shortcut that points to it.
+4. Settings and user data (`config.json`, `user_data/`) live in the same directory, so copying that folder migrates all preferences.
+   Drop community language packs into `user_data/assets/lang/<language_code>/messages.json` if you need additional translations.
+
 
 ## Getting started
 
@@ -54,14 +62,6 @@ pyinstaller --noconfirm --onedir --windowed --name WutheringWavesLauncher ^
 ```
 
 This command produces the folder `dist/WutheringWavesLauncher/` with the executable and bundled resources. Distribute the entire directory (for example by zipping it) so the launcher keeps access to its data.
-
-## Installing the .exe
-
-1. Download the `WutheringWavesLauncher-win64.zip` archive from GitHub Releases or build it yourself using the steps above.
-2. Extract the `WutheringWavesLauncher` folder somewhere with write permissions (for example `D:\Games\WutheringWavesLauncher`).
-3. Launch `WutheringWavesLauncher.exe` directly or create a desktop shortcut that points to it.
-4. Settings and user data (`config.json`, `user_data/`) live in the same directory, so copying that folder migrates all preferences.
-   Drop community language packs into `user_data/assets/lang/<language_code>/messages.json` if you need additional translations.
 
 ## License
 
